@@ -15,15 +15,27 @@ var Movies = Backbone.Collection.extend({
   model: Movie,
 
   initialize: function() {
-    // your code here
+    this.on('change', this.sort, this);
   },
 
   comparator: 'title',
 
   sortByField: function(field) {
-    // your code here
+    if (this['comparator'] === field) {
+      this['comparator'] = function(movie1, movie2) {
+        if (movie1.get(field) < movie2.get(field)) {
+          return 1;
+        }
+        if (movie1.get(field) > movie2.get(field)) {
+          return -1;
+        }
+        return 0;
+      };
+    } else {
+      this['comparator'] = field;
+    }
+    this.sort();
   }
-
 });
 
 var AppView = Backbone.View.extend({
@@ -58,7 +70,7 @@ var MovieView = Backbone.View.extend({
                         </div>'),
 
   initialize: function() {
-    // your code here
+    this.listenTo(this.model, 'change', this.render);
   },
 
   events: {
